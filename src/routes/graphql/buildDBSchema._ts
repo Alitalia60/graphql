@@ -1,0 +1,69 @@
+import { GraphQLFloat, GraphQLInt, GraphQLList, GraphQLObjectType, GraphQLString } from 'graphql';
+
+import { FastifyPluginAsync } from 'fastify';
+
+const buildDBSchema: FastifyPluginAsync = async (db) => {
+  const User: GraphQLObjectType = new GraphQLObjectType({
+    name: 'User',
+    fields: () => ({
+      id: { type: GraphQLString },
+      firstName: { type: GraphQLString },
+      lastName: { type: GraphQLString },
+      email: { type: GraphQLString },
+      subscribedToUserIds: {
+        type: new GraphQLList(User),
+        resolve(parent, args) { }
+      }
+    }),
+  })
+
+  const Profile: GraphQLObjectType = new GraphQLObjectType({
+    name: 'Profile',
+    fields: () => ({
+      id: { type: GraphQLString },
+      avatar: { type: GraphQLString },
+      sex: { type: GraphQLString },
+      birthday: { type: GraphQLFloat },
+      country: { type: GraphQLString },
+      street: { type: GraphQLString },
+      city: { type: GraphQLString },
+      memberTypeId: { type: MemberType },
+      userId: { type: User },
+
+    }),
+  })
+
+  const MemberType: GraphQLObjectType = new GraphQLObjectType({
+    name: 'MemberTypes',
+    fields: () => ({
+      id: { type: GraphQLString },
+      discount: { type: GraphQLInt },
+      monthPostsLimit: { type: GraphQLInt }
+    }),
+  })
+
+  const Post: GraphQLObjectType = new GraphQLObjectType({
+    name: 'Post',
+    fields: () => ({
+      id: { type: GraphQLString },
+      title: { type: GraphQLString },
+      content: { type: GraphQLString },
+      userId: { type: User },
+    }),
+  })
+
+  const usersQueries = new GraphQLObjectType({
+    name: 'usersQueries',
+    description: 'All users queries',
+    fields: {
+      getAll: {
+        type: new GraphQLList(User),
+        resolve(parent, args) {
+          // return db.
+          //TODO
+        }
+      }
+    }
+  })
+
+}
