@@ -1,6 +1,6 @@
 import { FastifyPluginAsyncJsonSchemaToTs } from '@fastify/type-provider-json-schema-to-ts';
 import { graphqlBodySchema } from './schema';
-import { GraphQLFloat, GraphQLInputObjectType, GraphQLInt, GraphQLList, GraphQLObjectType, GraphQLSchema, GraphQLString, graphql } from 'graphql';
+import { GraphQLFloat, GraphQLInt, GraphQLList, GraphQLObjectType, GraphQLSchema, GraphQLString, graphql } from 'graphql';
 import { ProfileEntity } from '../../utils/DB/entities/DBProfiles';
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async (fastify): Promise<void> => {
@@ -32,7 +32,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (fastify): Promise<void> 
         type: new GraphQLList(Post),
         args: {},
         resolve(parent) {
-          return fastify.db.posts.findOne({ key: 'userId', equals: parent.id })
+          return fastify.db.posts.findMany({ key: 'userId', equals: parent.id })
         }
       },
     }),
@@ -54,7 +54,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (fastify): Promise<void> 
           return fastify.db.memberTypes.findOne({ key: 'id', equals: parent.memberTypeId })
         }
       },
-      userId: { type: User },
+      userId: { type: GraphQLString },
 
     }),
   })
@@ -83,6 +83,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (fastify): Promise<void> 
     name: 'AllQuery',
     description: 'none',
     fields: {
+
       getUsers: {
         type: new GraphQLList(User),
         args: {},
@@ -94,11 +95,12 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (fastify): Promise<void> 
       getUserbyId: {
         type: User,
         args: { id: { type: GraphQLString! } },
-        resolve(parent, args, contextValue) {
-          // console.log('args.id: ', args.id);
-          // console.log('contextValue.userId: ', contextValue.userId);
-
-          return fastify.db.users.findOne({ key: 'id', equals: args.id ? args.id : contextValue.userId })
+        async resolve(parent, args, contextValue) {
+          const user = await fastify.db.users.findOne({ key: 'id', equals: args.id });
+          if (user) {
+            contextValue.response.notFound(`user not found`)
+          }
+          return fastify.db.users.findOne({ key: 'id', equals: args.id ? args.id : contextValue.vars.userId })
         }
       },
 
@@ -110,22 +112,33 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (fastify): Promise<void> 
       },
 
       getPostById: {
-        type: new GraphQLList(Post),
+        type: Post,
         args: {
-          id: { type: GraphQLString },
+          postId: { type: GraphQLString },
         },
-        resolve(parent, args, contextValue) {
-          return fastify.db.posts.findMany({ key: 'userId', equals: args.id ? args.id : contextValue.postId })
+        async resolve(parent, args, contextValue) {
+          if (contextValue.vars.postId) {
+            args.postId = contextValue.vars.postId;
+          }
+          return fastify.db.posts.findOne({ key: 'id', equals: args.postId })
         }
       },
 
       getPostByUserId: {
         type: new GraphQLList(Post),
         args: {
-          id: { type: GraphQLString },
+          userId: { type: GraphQLString },
         },
-        resolve(parent, args, contextValue) {
-          return fastify.db.posts.findOne({ key: 'userId', equals: args.id ? args.userId : contextValue.userId })
+        async resolve(parent, args, contextValue) {
+          if (contextValue.vars.id) {
+            args.id = contextValue.vars.id;
+          }
+          const user = await fastify.db.users.findOne({ key: 'id', equals: args.id });
+          if (user) {
+            contextValue.response.notFound(`user not found`)
+          }
+
+          return fastify.db.posts.findMany({ key: 'userId', equals: args.userId ? args.userId : contextValue.vars.userId })
         }
       },
 
@@ -142,12 +155,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (fastify): Promise<void> 
         args: {
           id: { type: GraphQLString },
         },
-
         resolve(parent, args, contextValue) {
-          // console.log('args.id: ', args.id);
-          // console.log('contextValue.profileId: ', contextValue.profileId);
-
-          return fastify.db.profiles.findOne({ key: 'id', equals: args.id ? args.id : contextValue.profileId })
+          return fastify.db.profiles.findOne({ key: 'id', equals: args.id ? args.id : contextValue.vars.profileId })
         }
       },
 
@@ -156,8 +165,16 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (fastify): Promise<void> 
         args: {
           id: { type: GraphQLString },
         },
-        resolve(parent, args, contextValue) {
-          return fastify.db.profiles.findOne({ key: 'userId', equals: args.id ? args.userId : contextValue.userId })
+        async resolve(parent, args, contextValue) {
+          if (contextValue.vars.id) {
+            args.id = contextValue.vars.id;
+          }
+          const user = await fastify.db.users.findOne({ key: 'id', equals: args.id });
+          if (user) {
+            contextValue.response.notFound(`user not found`)
+          }
+
+          return fastify.db.profiles.findOne({ key: 'userId', equals: args.id ? args.userId : contextValue.vars.userId })
         }
       },
 
@@ -169,53 +186,40 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (fastify): Promise<void> 
         }
       },
 
-      getMemberTypeById: {
-        type: MemberType,
-        args: { id: { type: GraphQLString } },
-        resolve(parent, args, contextValue) {
-          return fastify.db.memberTypes.findOne({ key: 'id', equals: args.id ? args.id : contextValue.memberTypeId })
-        }
-      },
+      // getMemberTypeById: {
+      //   type: MemberType,
+      //   args: { id: { type: GraphQLString } },
+      //   resolve(parent, args, contextValue) {
+      //     return fastify.db.memberTypes.findOne({ key: 'id', equals: args.id ? args.id : contextValue.vars.memberTypeId })
+      //   }
+      // },
 
-      getUser_Profile_Post_Member: {
-        type: User,
-        args: { id: { type: GraphQLString } },
-        resolve(parent, args) {
-          return fastify.db.users.findMany()
-        },
-      },
 
     }
-  }
-  );
-
-  //!! Input object
-  const inputUserData = new GraphQLInputObjectType({
-    name: "UserData",
-    fields: {
-      firstName: { type: GraphQLString },
-      lastName: { type: GraphQLString },
-      email: { type: GraphQLString },
-    },
   });
-  console.log(typeof inputUserData);
 
-  const inputProfileData = new GraphQLInputObjectType({
-    name: "inputProfileData",
-    fields: {
-      avatar: { type: GraphQLString },
-      sex: { type: GraphQLString },
-      birthday: { type: GraphQLFloat },
-      country: { type: GraphQLString },
-      street: { type: GraphQLString },
-      city: { type: GraphQLString },
-      userId: { type: GraphQLString },
-      memberTypeId: { type: GraphQLString, defaultValue: 'basic' },
-    },
-  });
-  console.log(typeof inputProfileData);
-  //!!  ****************************
-  //!! Input object
+  // const inputUserData = new GraphQLInputObjectType({
+  //   name: "UserData",
+  //   fields: {
+  //     firstName: { type: GraphQLString },
+  //     lastName: { type: GraphQLString },
+  //     email: { type: GraphQLString },
+  //   },
+  // });
+
+  // const inputProfileData = new GraphQLInputObjectType({
+  //   name: "inputProfileData",
+  //   fields: {
+  //     avatar: { type: GraphQLString },
+  //     sex: { type: GraphQLString },
+  //     birthday: { type: GraphQLFloat },
+  //     country: { type: GraphQLString },
+  //     street: { type: GraphQLString },
+  //     city: { type: GraphQLString },
+  //     userId: { type: GraphQLString },
+  //     memberTypeId: { type: GraphQLString, defaultValue: 'basic' },
+  //   },
+  // });
 
   const Mutation = new GraphQLObjectType({
     name: 'Mutation',
@@ -225,24 +229,28 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (fastify): Promise<void> 
         args: {
           firstName: { type: GraphQLString },
           lastName: { type: GraphQLString },
-          email: { type: GraphQLString },
+          email: { type: GraphQLString }
         },
-        async resolve(parent, args) {
-          return await fastify.db.users.create(args)
+
+        async resolve(parent, args, contextValue) {
+          if (!contextValue.vars) {
+            return await fastify.db.users.create(args)
+          }
+          return await fastify.db.users.create(contextValue.vars)
         }
       },
 
       addProfile: {
         type: Profile,
         args: {
-          avatar: { type: GraphQLString },
-          sex: { type: GraphQLString },
-          birthday: { type: GraphQLFloat },
-          country: { type: GraphQLString },
-          street: { type: GraphQLString },
-          city: { type: GraphQLString },
+          // avatar: { type: GraphQLString },
+          // sex: { type: GraphQLString },
+          // birthday: { type: GraphQLFloat },
+          // country: { type: GraphQLString },
+          // street: { type: GraphQLString },
+          // city: { type: GraphQLString },
           userId: { type: GraphQLString },
-          memberTypeId: { type: GraphQLString },
+          // memberTypeId: { type: GraphQLString },
         },
         async resolve(parent, args) {
           return await fastify.db.profiles.create(args)
@@ -257,14 +265,50 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (fastify): Promise<void> 
           userId: { type: GraphQLString },
         },
         async resolve(parent, args, contextValue) {
-
-          console.log('contextValue.userId: ', contextValue.userId);
-
-          if (contextValue.userId) {
-            args.userId = contextValue.userId;
+          if (contextValue.vars.userId) {
+            args.userId = contextValue.vars.userId;
           }
-          console.log('args.userId: ', args.userId);
           return await fastify.db.posts.create(args)
+        }
+      },
+
+      addSubscribedToUserIds: {
+
+        type: User,
+        args: {
+          id: { type: GraphQLString },
+          userId: { type: GraphQLString }
+        },
+        async resolve(parent, args, contextValue) {
+          if (contextValue.vars.id) {
+            args.id = contextValue.vars.id;
+          }
+          if (contextValue.vars.userId) {
+            args.userId = contextValue.vars.userId;
+          }
+
+          const userSubscribeTo = await fastify.db.users.findOne({ key: 'id', equals: args.userId });
+          const user = await fastify.db.users.findOne({ key: 'id', equals: args.id });
+          if (user) {
+            contextValue.response.notFound(`user not found`)
+          }
+
+          if (user && userSubscribeTo) {
+            if (!userSubscribeTo.subscribedToUserIds.includes(user.id)) {
+              const newList = userSubscribeTo.subscribedToUserIds;
+              const recordIndex = newList.findIndex(item => item === user.id);
+              if (recordIndex === -1) {
+                newList.push(user.id)
+                fastify.db.users.change(userSubscribeTo.id, { subscribedToUserIds: newList });
+              }
+              return user;
+
+            }
+          } else {
+            contextValue.response.notFound(`user not found`)
+          }
+
+
         }
       },
 
@@ -320,7 +364,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (fastify): Promise<void> 
       return await graphql({
         schema: GqlSchema,
         source: String(request.body.query),
-        contextValue: request.body.variables,
+        contextValue: { response: reply, vars: request.body.variables },
 
       });
     }
