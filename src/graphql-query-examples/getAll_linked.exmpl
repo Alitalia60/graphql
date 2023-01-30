@@ -1,0 +1,32 @@
+#2.3. Get users with their posts, profiles, memberTypes.
+{
+  getUsers {
+    id
+    firstName
+    lastName
+    email
+    }
+  }
+  getProfiles {
+    id
+    avatar
+    birthday
+    sex
+    country
+    city
+    street
+    userId {
+      firstName
+    }
+  }
+  getPosts {
+    id
+    title
+    content
+  }
+  getMemberTypes {
+    id
+    discount
+    monthPostsLimit
+  }
+}

@@ -1,0 +1,35 @@
+mutation {
+  addUser1: addUser(
+    firstName: "Peter"
+    lastName: "Pavel"
+    email: "pavel.post@peter.com"
+  ) {
+    ...userData
+  }
+  addUser2: addUser(
+    firstName: "Anna"
+    lastName: "Maver"
+    email: "anna12345@peter.com"
+  ) {
+    ...userData
+  }
+  addUser3: addUser(
+    firstName: "John"
+    lastName: "Doil"
+    email: "john000@peter.com"
+  ) {
+    ...userData
+  }
+  addUser4: addUser(
+    firstName: "Mary"
+    lastName: "Cane"
+    email: "mary_key@peter.com"
+  ) {
+    ...userData
+  }
+}
+fragment userData on User {
+  firstName
+  lastName
+  email
+}

@@ -79,11 +79,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (fastify): Promise<void> 
       const user = await this.db.users.findOne({ key: 'id', equals: request.params.id });
       if (user && userSubscribeTo) {
         if (!userSubscribeTo.subscribedToUserIds.includes(user.id)) {
-
           const newList = userSubscribeTo.subscribedToUserIds;
-
           const recordIndex = newList.findIndex(item => item === user.id);
-
           if (recordIndex === -1) {
             newList.push(user.id)
             this.db.users.change(userSubscribeTo.id, { subscribedToUserIds: newList });

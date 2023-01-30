@@ -1,0 +1,35 @@
+#2.1. Get users, profiles, posts, memberTypes - 4 operations in one query.
+{
+  getUsers {
+    id
+    firstName
+    lastName
+    email
+    subscribedToUserIds {
+      firstName
+      lastName
+    }
+  }
+  getProfiles {
+    id
+    avatar
+    birthday
+    sex
+    country
+    city
+    street
+    userId {
+      firstName
+    }
+  }
+  getPosts {
+    id
+    title
+    content
+  }
+  getMemberTypes {
+    id
+    discount
+    monthPostsLimit
+  }
+}

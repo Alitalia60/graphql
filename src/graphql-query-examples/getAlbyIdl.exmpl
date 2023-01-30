@@ -1,0 +1,41 @@
+#2.2. Get user, profile, post, memberType by id - 4 operations in one query.
+
+query (
+  $userId: String
+  $profileId: String
+  $postId: String
+  $memberId: String
+) {
+  getUser(id: userId) {
+    id
+    firstName
+    lastName
+    email
+    subscribedToUserIds {
+      firstName
+      lastName
+    }
+  }
+  getProfile(id: profileId) {
+    id
+    avatar
+    birthday
+    sex
+    country
+    city
+    street
+    userId {
+      firstName
+    }
+  }
+  getPost(id: postId) {
+    id
+    title
+    content
+  }
+  getMemberType(id: memberId) {
+    id
+    discount
+    monthPostsLimit
+  }
+}
