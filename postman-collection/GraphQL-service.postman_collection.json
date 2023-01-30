@@ -1,0 +1,110 @@
+{
+	"info": {
+		"_postman_id": "02d8fb4f-0f83-4c07-ad92-4bde4f7084a7",
+		"name": "GraphQL-service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "18339158"
+	},
+	"item": [
+		{
+			"name": "2.1. Get users, profiles, posts, memberTypes - 4 operations in one query.",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "# Try to write your query here\r\n#2.1. Get users, profiles, posts, memberTypes - 4 operations in one query.\r\n{\r\n  getUsers {\r\n    id\r\n    firstName\r\n    lastName\r\n    email\r\n    subscribedToUserIds {\r\n      firstName\r\n      lastName\r\n    }\r\n  }\r\n  getProfiles {\r\n    id\r\n    avatar\r\n    birthday\r\n    sex\r\n    country\r\n    city\r\n    street\r\n    userId {\r\n      firstName\r\n    }\r\n  }\r\n  getPosts {\r\n    id\r\n    title\r\n    content\r\n  }\r\n  getMemberTypes {\r\n    id\r\n    discount\r\n    monthPostsLimit\r\n  }\r\n}\r\n",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/graphql",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2.2. Get user, profile, post, memberType by id - 4 operations in one query.",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query($userId:String, $profileId:String, $memberTypeId:String,$postId:String)\r\n{\r\n  getUserbyId(id:$userId) {\r\n    id\r\n    firstName\r\n    lastName\r\n    email\r\n    subscribedToUserIds {\r\n      firstName\r\n      lastName\r\n    }\r\n  }\r\n   getProfileById(id:$profileId){\r\n    id\r\n    avatar\r\n    birthday\r\n    sex\r\n    country\r\n    city\r\n    street\r\n    userId {\r\n      firstName\r\n    }\r\n  }\r\n  getPostById(id:$postId) {\r\n    id\r\n    title\r\n    content\r\n  }\r\n  getMemberTypeById(id:$memberTypeId) {\r\n    id\r\n    discount\r\n    monthPostsLimit\r\n  }\r\n}\r\n",
+						"variables": "{\"userId\": \"\", \"profileId\": \"\",\"memberTypeId\": \"basic\",\"postId\": \"\"}"
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/graphql",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2.3. Get users with their posts, profiles, memberTypes.",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "# Try to write your query here\r\n#2.1. Get users, profiles, posts, memberTypes - 4 operations in one query.\r\n{\r\n  getUsers {\r\n    id\r\n    firstName\r\n    lastName\r\n    email\r\n    subscribedToUserIds {\r\n      firstName\r\n      lastName\r\n    }\r\n  }\r\n  getProfiles {\r\n    id\r\n    avatar\r\n    birthday\r\n    sex\r\n    country\r\n    city\r\n    street\r\n    userId {\r\n      firstName\r\n    }\r\n  }\r\n  getPosts {\r\n    id\r\n    title\r\n    content\r\n  }\r\n  getMemberTypes {\r\n    id\r\n    discount\r\n    monthPostsLimit\r\n  }\r\n}\r\n",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/graphql",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2.4. Get user by id with his posts, profile, memberType.",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "# Try to write your query here\r\n#2.1. Get users, profiles, posts, memberTypes - 4 operations in one query.\r\n{\r\n  getUsers {\r\n    id\r\n    firstName\r\n    lastName\r\n    email\r\n    subscribedToUserIds {\r\n      firstName\r\n      lastName\r\n    }\r\n  }\r\n  getProfiles {\r\n    id\r\n    avatar\r\n    birthday\r\n    sex\r\n    country\r\n    city\r\n    street\r\n    userId {\r\n      firstName\r\n    }\r\n  }\r\n  getPosts {\r\n    id\r\n    title\r\n    content\r\n  }\r\n  getMemberTypes {\r\n    id\r\n    discount\r\n    monthPostsLimit\r\n  }\r\n}\r\n",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/graphql",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
